@@ -1,7 +1,11 @@
 package com.yang.shiro;
 
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
+import org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy;
+import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
+import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
@@ -10,8 +14,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Configuration
 public class shiroConfig {
@@ -22,6 +25,12 @@ public class shiroConfig {
         DefaultAdvisorAutoProxyCreator defaultAAP = new DefaultAdvisorAutoProxyCreator();
         defaultAAP.setProxyTargetClass(true);
         return defaultAAP;
+    }
+    @Bean
+    public EhCacheManager ehCacheManager(){
+        EhCacheManager ehCacheManager=new EhCacheManager();
+        ehCacheManager.setCacheManagerConfigFile("classpath:ehcache.xml");
+        return ehCacheManager;
     }
 
     //将自己的验证方式加入容器
@@ -36,13 +45,41 @@ public class shiroConfig {
         realms.setCredentialsMatcher(hashedCredentialsMatcher);
         return realms;
     }
+    @Bean
+    public secondRealm secondRealm()
+    {
+        secondRealm secondRealm=new secondRealm();
+        HashedCredentialsMatcher hashedCredentialsMatcher=new HashedCredentialsMatcher();
+        hashedCredentialsMatcher.setHashAlgorithmName("MD5");
+        hashedCredentialsMatcher.setHashIterations(1024);
+        secondRealm.setCredentialsMatcher(hashedCredentialsMatcher);
+        return secondRealm;
+    }
 
     //权限管理，配置主要是Realm的管理认证
     @Bean
     public SecurityManager securityManager() {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
-        securityManager.setRealm(myShiroRealm());
+        securityManager.setCacheManager(ehCacheManager());
+//        securityManager.setRealm(myShiroRealm());
+//        若想要配置Authenticator，此配置必须在setRealms前
+        securityManager.setAuthenticator(modularRealmAuthenticator());
+        List<Realm> list=new ArrayList<>();
+        list.add(myShiroRealm());
+        list.add(secondRealm());
+        securityManager.setRealms(list);//底层会调用modularRealmAuthenticator.setRealms();将realms加进Authenticator
         return securityManager;
+    }
+    @Bean
+    public ModularRealmAuthenticator modularRealmAuthenticator(){
+        ModularRealmAuthenticator modularRealmAuthenticator=new ModularRealmAuthenticator();
+        AtLeastOneSuccessfulStrategy atLeastOneSuccessfulStrategy=new AtLeastOneSuccessfulStrategy();
+//        modularRealmAuthenticator.setRealms();
+//        AllSuccessfulStrategy	所有都满足的情况
+//        AtLeastOneSuccessfulStrategy	至少一条满足的情况(默认的)
+//        FirstSuccessfulStrategy	第一条满足的情况
+        modularRealmAuthenticator.setAuthenticationStrategy(atLeastOneSuccessfulStrategy);
+        return modularRealmAuthenticator;
     }
 
     //Filter工厂，设置对应的过滤条件和跳转条件

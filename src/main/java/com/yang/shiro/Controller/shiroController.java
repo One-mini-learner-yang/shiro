@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/shiro")
 public class shiroController {
-    @RequestMapping("/login")
+    @RequestMapping(value = "/login")
     public String shiroLogin(String username,String password)
     {
         Logger log= LoggerFactory.getLogger(getClass().getName());

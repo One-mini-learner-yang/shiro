@@ -73,3 +73,12 @@ shiro的加密
 shiro盐值加密
     由于存在密码一致的情况，所以单纯的加密并不安全，所以存在盐值加密
     盐值需要唯一，一般采用用户的username
+shiro的多Realm
+    由于在开发中可能会使用多个数据源，所以会用到多Realm
+    SecurityManager.setRealms()方法底层会调用modularRealmAuthenticator.setRealms();最终加进验证器中
+    shiro的验证策略共三种；
+                  //        AllSuccessfulStrategy	所有都满足的情况
+                  //        AtLeastOneSuccessfulStrategy	至少一条满足的情况(默认的)
+                  //        FirstSuccessfulStrategy	第一条满足的情况
+    在验证器ModularRealmAuthenticator中配置，不配置则使用默认验证策略
+    在SecurityManager中要想定义验证器配置，其位置必须在setRealms（）之前，否则realms被无法加载
