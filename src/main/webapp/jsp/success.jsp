@@ -7,5 +7,6 @@
 </head>
 <body>
     <h4>success!</h4>
+    <a href="../shiro/index">index</a>
 </body>
 </html>

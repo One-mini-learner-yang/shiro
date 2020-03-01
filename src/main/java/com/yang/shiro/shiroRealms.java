@@ -2,6 +2,7 @@ package com.yang.shiro;
 
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
@@ -12,7 +13,12 @@ public class shiroRealms extends AuthorizingRealm {
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
-        return null;
+        Logger logger=LoggerFactory.getLogger(getClass().getName());
+        logger.info(principalCollection.toString());
+        SimpleAuthorizationInfo simpleAuthorizationInfo=new SimpleAuthorizationInfo();
+        //将数据库内查出的角色添加进即可
+        simpleAuthorizationInfo.addRole("admin");
+        return simpleAuthorizationInfo;
     }
 
     @Override
@@ -24,13 +30,13 @@ public class shiroRealms extends AuthorizingRealm {
         if (usernamePasswordToken.getUsername().equals("123456"))
         {
             byteSource=ByteSource.Util.bytes("yang");
-            password="7d4cabcc989de886338bedc3bce19dd2";
+            password="cc4d94e5b62f97e26ac1523a959936e0";
             log.info("------>欢迎yang");
         }
         if(usernamePasswordToken.getUsername().equals("654321"))
         {
             byteSource=ByteSource.Util.bytes("H");
-            password="4782b5e7c98bf24bdea3e799cad45741";
+            password="02243f19d47fcf294cdc20241cc992e6";
             log.info("-------->欢迎H");
         }
         //在普通登录验证的时候，该构造器的构造参数

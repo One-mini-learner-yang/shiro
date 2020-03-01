@@ -26,6 +26,13 @@ public class shiroConfig {
         defaultAAP.setProxyTargetClass(true);
         return defaultAAP;
     }
+    //加入注解的使用，不加入这个注解不生效
+    @Bean
+    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(SecurityManager securityManager) {
+        AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor = new AuthorizationAttributeSourceAdvisor();
+        authorizationAttributeSourceAdvisor.setSecurityManager(securityManager);
+        return authorizationAttributeSourceAdvisor;
+    }
     @Bean
     public EhCacheManager ehCacheManager(){
         EhCacheManager ehCacheManager=new EhCacheManager();
@@ -63,24 +70,25 @@ public class shiroConfig {
         securityManager.setCacheManager(ehCacheManager());
 //        securityManager.setRealm(myShiroRealm());
 //        若想要配置Authenticator，此配置必须在setRealms前
-        securityManager.setAuthenticator(modularRealmAuthenticator());
-        List<Realm> list=new ArrayList<>();
-        list.add(myShiroRealm());
-        list.add(secondRealm());
-        securityManager.setRealms(list);//底层会调用modularRealmAuthenticator.setRealms();将realms加进Authenticator
+//        securityManager.setAuthenticator(modularRealmAuthenticator());
+//        List<Realm> list=new ArrayList<>();
+//        list.add(myShiroRealm());
+//        list.add(secondRealm());
+//        securityManager.setRealms(list);//底层会调用modularRealmAuthenticator.setRealms();将realms加进Authenticator
+        securityManager.setRealm(myShiroRealm());
         return securityManager;
     }
-    @Bean
-    public ModularRealmAuthenticator modularRealmAuthenticator(){
-        ModularRealmAuthenticator modularRealmAuthenticator=new ModularRealmAuthenticator();
-        AtLeastOneSuccessfulStrategy atLeastOneSuccessfulStrategy=new AtLeastOneSuccessfulStrategy();
-//        modularRealmAuthenticator.setRealms();
-//        AllSuccessfulStrategy	所有都满足的情况
-//        AtLeastOneSuccessfulStrategy	至少一条满足的情况(默认的)
-//        FirstSuccessfulStrategy	第一条满足的情况
-        modularRealmAuthenticator.setAuthenticationStrategy(atLeastOneSuccessfulStrategy);
-        return modularRealmAuthenticator;
-    }
+//    @Bean
+//    public ModularRealmAuthenticator modularRealmAuthenticator(){
+//        ModularRealmAuthenticator modularRealmAuthenticator=new ModularRealmAuthenticator();
+//        AtLeastOneSuccessfulStrategy atLeastOneSuccessfulStrategy=new AtLeastOneSuccessfulStrategy();
+////        modularRealmAuthenticator.setRealms();
+////        AllSuccessfulStrategy	所有都满足的情况
+////        AtLeastOneSuccessfulStrategy	至少一条满足的情况(默认的)
+////        FirstSuccessfulStrategy	第一条满足的情况
+//        modularRealmAuthenticator.setAuthenticationStrategy(atLeastOneSuccessfulStrategy);
+//        return modularRealmAuthenticator;
+//    }
 
     //Filter工厂，设置对应的过滤条件和跳转条件
     @Bean
@@ -92,6 +100,7 @@ public class shiroConfig {
         //anon：为可被匿名访问  authc：需要认证  logout：登出
         map.put("/jsp/login.jsp", "anon");
         //对验证路径放开权限
+        map.put("/shiro/index","roles[admin]");
         map.put("/shiro/login","anon");
         map.put("/jsp/success.jsp","anon");
         //对所有用户认证
@@ -104,13 +113,5 @@ public class shiroConfig {
         shiroFilterFactoryBean.setUnauthorizedUrl("/jsp/unauthorized.jsp");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(map);
         return shiroFilterFactoryBean;
-    }
-
-    //加入注解的使用，不加入这个注解不生效
-    @Bean
-    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(SecurityManager securityManager) {
-        AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor = new AuthorizationAttributeSourceAdvisor();
-        authorizationAttributeSourceAdvisor.setSecurityManager(securityManager);
-        return authorizationAttributeSourceAdvisor;
     }
 }

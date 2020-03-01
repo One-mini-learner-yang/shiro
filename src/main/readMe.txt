@@ -82,3 +82,24 @@ shiro的多Realm
                   //        FirstSuccessfulStrategy	第一条满足的情况
     在验证器ModularRealmAuthenticator中配置，不配置则使用默认验证策略
     在SecurityManager中要想定义验证器配置，其位置必须在setRealms（）之前，否则realms被无法加载
+shiro的权限管理
+    在权限判断（比如注解）的底层hasRoles/hasPermitted方法中，底层会调用doGetAuthorizationInfo(PrincipalCollection principalCollection)，所以我们在realm的该方法中进行授权
+    其中，该参数为用户的username
+    开发中应用注解权限管理
+        @RequiresAuthentication
+        　　表示当前Subject已经通过login 进行了身份验证；即Subject. isAuthenticated()返回true。
+
+        　　@RequiresUser
+        　　表示当前Subject已经身份验证或者通过记住我登录的。
+
+        　　@RequiresGuest
+        　　表示当前Subject没有身份验证或通过记住我登录过，即是游客身份。
+
+        　　@RequiresRoles(value={“admin”, “user”}, logical= Logical.AND)
+        　　@RequiresRoles(value={“admin”})
+        　　@RequiresRoles({“admin“})
+        　　表示当前Subject需要角色admin 和user。
+
+        　　@RequiresPermissions (value={“user:a”, “user:b”}, logical= Logical.OR)
+        　　表示当前Subject需要权限user:a或user:b。
+    在多realm环境下，有一个realm中权限通过即可

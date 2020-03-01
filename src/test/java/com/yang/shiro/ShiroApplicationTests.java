@@ -11,7 +11,7 @@ class ShiroApplicationTests {
     @Test
     void contextLoads() {
         String hashCredential="MD5";//加密形式
-        Object password="12345";//密码
+        Object password="123456";//密码
         Object salt= ByteSource.Util.bytes("H");//加盐
         int hashIteration=1024;//加密次数
         Object result=new  SimpleHash(hashCredential,password,salt,hashIteration);
