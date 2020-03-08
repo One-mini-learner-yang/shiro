@@ -15,6 +15,7 @@ public class shiroRealms extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         Logger logger=LoggerFactory.getLogger(getClass().getName());
         logger.info(principalCollection.toString());
+        //参数principalCollection为用户名
         SimpleAuthorizationInfo simpleAuthorizationInfo=new SimpleAuthorizationInfo();
         //将数据库内查出的角色添加进即可
         simpleAuthorizationInfo.addRole("admin");
