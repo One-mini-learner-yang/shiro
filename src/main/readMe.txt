@@ -103,3 +103,31 @@ shiro的权限管理
         　　@RequiresPermissions (value={“user:a”, “user:b”}, logical= Logical.OR)
         　　表示当前Subject需要权限user:a或user:b。
     在多realm环境下，有一个realm中权限通过即可
+
+
+    问题出现：在同一个域名下部署两个项目，两个项目的cookie相互影响
+    问题原因：cookie不设置情况下默认的key为JSESSIONID，后一个会对前一个进行覆盖
+    解决方法：修改其中一个项目的cookie名
+    //同一个域下两个项目使用shiro，cookie值相同相互影响
+       /* @Bean
+        public Cookie cookieDAO() {
+           Cookie cookie=new org.apache.shiro.web.servlet.SimpleCookie();
+           cookie.setName("WEBSID");
+           return cookie;
+        }
+
+     /**
+         * shiro session的管理
+         */
+        @Bean
+        public DefaultWebSessionManager sessionManager() {
+            DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
+            sessionManager.setGlobalSessionTimeout(tomcatTimeout * 1000);
+            sessionManager.setSessionDAO(sessionDAO());
+            //将修改的cookie放入sessionManager中
+            sessionManager.setSessionIdCookie(cookieDAO());
+            Collection<SessionListener> listeners = new ArrayList<SessionListener>();
+            listeners.add(new BDSessionListener());
+            sessionManager.setSessionListeners(listeners);
+            return sessionManager;
+        }
